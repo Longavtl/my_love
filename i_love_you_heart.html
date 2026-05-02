@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>I Love You </title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    background: radial-gradient(ellipse at center, #1a0033 0%, #0d0019 50%, #000000 100%);
+    font-family: 'Georgia', serif;
+    cursor: pointer;
+  }
+
+  canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  #pinkboard { z-index: 2; }
+  #waveboard { z-index: 1; }
+
+  /* Chữ I Love You ở giữa */
+  .center-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    text-align: center;
+    pointer-events: none;
+    animation: heartbeat 1.2s ease-in-out infinite;
+  }
+
+  .love-text {
+    font-size: clamp(2rem, 6vw, 4.5rem);
+    font-weight: bold;
+    background: linear-gradient(45deg, #fff, #ffd6e8, #fff, #ffb3c1, #fff);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 6px;
+    animation: shimmerText 3s ease infinite, text3DSpin 6s ease-in-out infinite;
+    filter: drop-shadow(0 0 20px #ff006e) drop-shadow(0 0 40px #f50b02);
+    transform-style: preserve-3d;
+  }
+
+  @keyframes text3DSpin {
+    0%, 100% { transform: perspective(800px) rotateY(0deg); }
+    50% { transform: perspective(800px) rotateY(-10deg); }
+  }
+
+  .love-subtitle {
+    margin-top: 12px;
+    color: #ffb3c1;
+    font-size: clamp(0.8rem, 1.8vw, 1.2rem);
+    font-style: italic;
+    letter-spacing: 4px;
+    text-shadow: 0 0 15px #ff006e, 0 0 30px #ff006e;
+    animation: pulse 2s ease infinite;
+  }
+
+  @keyframes heartbeat {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    14% { transform: translate(-50%, -50%) scale(1.12); }
+    28% { transform: translate(-50%, -50%) scale(1); }
+    42% { transform: translate(-50%, -50%) scale(1.15); }
+    70% { transform: translate(-50%, -50%) scale(1); }
+  }
+
+  @keyframes shimmerText {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+  }
+
+  /* Vầng hào quang nhẹ sau chữ */
+  .glow-aura {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 500px;
+    height: 500px;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(255, 0, 110, 0.08) 0%, transparent 60%);
+    z-index: 1;
+    pointer-events: none;
+    animation: auraPulse 3s ease-in-out infinite;
+  }
+
+  @keyframes auraPulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+    50% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+  }
+
+  /* Đĩa than vinyl xoay - nút bật/tắt nhạc */
+  .music-btn {
+    position: fixed;
+    top: 25px;
+    left: 25px;
+    width: 75px;
+    height: 75px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 200;
+    border: none;
+    padding: 0;
+    background:
+      radial-gradient(circle at 50% 50%,
+        #ff006e 0%, #ff006e 22%,
+        #1a1a1a 22%, #1a1a1a 24%,
+        #2a2a2a 24%, #1a1a1a 26%,
+        #2a2a2a 26%, #1a1a1a 28%,
+        #2a2a2a 28%, #1a1a1a 30%,
+        #2a2a2a 30%, #1a1a1a 32%,
+        #2a2a2a 32%, #0a0a0a 34%,
+        #2a2a2a 34%, #0a0a0a 36%,
+        #2a2a2a 36%, #0a0a0a 38%,
+        #2a2a2a 38%, #0a0a0a 40%,
+        #1a1a1a 40%, #0a0a0a 100%);
+    box-shadow:
+      0 8px 25px rgba(0, 0, 0, 0.7),
+      inset 0 0 20px rgba(255, 255, 255, 0.05),
+      0 0 0 2px #1a1a1a,
+      0 0 0 3px rgba(255, 0, 110, 0.4);
+    overflow: hidden;
+    transition: transform 0.3s ease;
+  }
+
+  /* Highlight ánh sáng trên đĩa */
+  .music-btn::before {
+    content: '';
+    position: absolute;
+    top: 5%;
+    left: 15%;
+    width: 70%;
+    height: 30%;
+    background: linear-gradient(135deg,
+      rgba(255,255,255,0.15) 0%,
+      transparent 50%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  /* Lỗ trung tâm đĩa */
+  .music-btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    background: #1a0033;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: inset 0 0 4px rgba(0,0,0,0.8);
+    pointer-events: none;
+  }
+
+  /* Icon nhỏ ở giữa đĩa - thay cho text */
+  .music-btn .icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 0.8rem;
+    z-index: 1;
+    text-shadow: 0 0 5px rgba(0,0,0,0.8);
+    pointer-events: none;
+    margin-left: 12px;
+  }
+
+  .music-btn:hover {
+    transform: scale(1.08);
+    box-shadow:
+      0 12px 35px rgba(0, 0, 0, 0.8),
+      inset 0 0 20px rgba(255, 255, 255, 0.1),
+      0 0 0 2px #1a1a1a,
+      0 0 0 3px rgba(255, 0, 110, 0.8),
+      0 0 30px rgba(255, 0, 110, 0.5);
+  }
+
+  .music-btn.playing {
+    animation: vinylSpin 3s linear infinite;
+  }
+
+  @keyframes vinylSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  /* Cần đầu đĩa (tonearm) */
+  .tonearm {
+    position: fixed;
+    top: 20px;
+    left: 75px;
+    width: 70px;
+    height: 8px;
+    z-index: 199;
+    pointer-events: none;
+    transform-origin: 95% 50%;
+    transform: rotate(-25deg);
+    transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  }
+
+  .tonearm.playing {
+    transform: rotate(-8deg);
+  }
+
+  .tonearm::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(90deg, #888, #ddd, #aaa);
+    border-radius: 2px;
+    transform: translateY(-50%);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  }
+
+  .tonearm::after {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: 50%;
+    width: 14px;
+    height: 14px;
+    background: radial-gradient(circle at 30% 30%, #ddd, #555);
+    border-radius: 50%;
+    transform: translateY(-50%);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.6);
+  }
+
+  /* Trục đầu đĩa (pivot) */
+  .tonearm-pivot {
+    position: fixed;
+    top: 20px;
+    left: 138px;
+    width: 16px;
+    height: 16px;
+    background: radial-gradient(circle at 30% 30%, #ddd, #444);
+    border-radius: 50%;
+    z-index: 200;
+    pointer-events: none;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.7), inset 0 -2px 3px rgba(0,0,0,0.4);
+  }
+
+
+  /* Hint */
+  .hint {
+    position: absolute;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.9rem;
+    font-style: italic;
+    letter-spacing: 2px;
+    z-index: 50;
+    animation: pulse 2s ease infinite;
+    pointer-events: none;
+  }
+
+  /* Sao nền lấp lánh */
+  .star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle 2s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.2; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.5); box-shadow: 0 0 8px white, 0 0 12px #ffb3c1; }
+  }
+
+  /* Ánh sao bay chéo */
+  .shooting-star {
+    position: absolute;
+    width: 2px;
+    height: 80px;
+    background: linear-gradient(to bottom, transparent, white, transparent);
+    animation: shoot 3s linear infinite;
+    pointer-events: none;
+    transform-origin: top;
+    opacity: 0;
+  }
+
+  @keyframes shoot {
+    0% { opacity: 0; transform: translate(0, 0) rotate(45deg); }
+    10% { opacity: 1; }
+    100% { opacity: 0; transform: translate(300px, 300px) rotate(45deg); }
+  }
+</style>
+</head>
+<body>
+
+<audio id="bgMusic" loop preload="auto">
+  <source src="giac-mo_tinh_co.mp3" type="audio/mpeg">
+</audio>
+
+<button class="music-btn" id="musicBtn" title="Bật/tắt nhạc"></button>
+<div class="tonearm" id="tonearm"></div>
+<div class="tonearm-pivot"></div>
+
+<div class="glow-aura"></div>
+
+<canvas id="waveboard"></canvas>
+<canvas id="pinkboard"></canvas>
+
+<div class="center-text">
+  <div class="love-text">I Love You</div>
+</div>
+
+<div class="hint">~ Click bất kỳ đâu để gửi yêu thương ~</div>
+
+<script>
+// ============ STARS BACKGROUND ============
+for (let i = 0; i < 80; i++) {
+  const star = document.createElement('div');
+  star.className = 'star';
+  star.style.left = Math.random() * 100 + 'vw';
+  star.style.top = Math.random() * 100 + 'vh';
+  const size = Math.random() * 2 + 1;
+  star.style.width = size + 'px';
+  star.style.height = size + 'px';
+  star.style.animationDelay = Math.random() * 2 + 's';
+  document.body.appendChild(star);
+}
+
+// Sao băng định kỳ
+function createShootingStar() {
+  const ss = document.createElement('div');
+  ss.className = 'shooting-star';
+  ss.style.left = Math.random() * 80 + 'vw';
+  ss.style.top = Math.random() * 50 + 'vh';
+  document.body.appendChild(ss);
+  setTimeout(() => ss.remove(), 3000);
+}
+setInterval(createShootingStar, 4000);
+
+// ============ requestAnimationFrame polyfill ============
+(function(){var b=0;var c=["ms","moz","webkit","o"];for(var a=0;a<c.length&&!window.requestAnimationFrame;++a){window.requestAnimationFrame=window[c[a]+"RequestAnimationFrame"];window.cancelAnimationFrame=window[c[a]+"CancelAnimationFrame"]||window[c[a]+"CancelRequestAnimationFrame"]}}());
+
+// ============ HEART MATH ============
+function pointOnHeart(t) {
+  return {
+    x: 160 * Math.pow(Math.sin(t), 3),
+    y: 130 * Math.cos(t) - 50 * Math.cos(2*t) - 20 * Math.cos(3*t) - 10 * Math.cos(4*t) + 25
+  };
+}
+
+// Tạo image trái tim với gradient
+function createHeartImage(size, colors) {
+  const c = document.createElement('canvas');
+  const ctx = c.getContext('2d');
+  c.width = size; c.height = size;
+  ctx.beginPath();
+  let t = -Math.PI;
+  let p = pointOnHeart(t);
+  ctx.moveTo(size/2 + p.x*size/350, size/2 - p.y*size/350);
+  while (t < Math.PI) {
+    t += 0.01;
+    p = pointOnHeart(t);
+    ctx.lineTo(size/2 + p.x*size/350, size/2 - p.y*size/350);
+  }
+  ctx.closePath();
+  const grad = ctx.createRadialGradient(size/2, size/2, 1, size/2, size/2, size/2);
+  colors.forEach((color, i) => grad.addColorStop(i/(colors.length-1), color));
+  ctx.fillStyle = grad;
+  ctx.fill();
+  const img = new Image();
+  img.src = c.toDataURL();
+  return img;
+}
+
+// Trái tim đơn giản như bản gốc - đỏ thuần
+const heartImages = [
+  createHeartImage(20, ['#ff85a1', '#f50b02']),
+  createHeartImage(20, ['#ff4d8f', '#c9184a']),
+  createHeartImage(20, ['#ff006e', '#a4133c']),
+  createHeartImage(20, ['#ffb3c1', '#ff006e']),
+];
+
+// ============ PARTICLE CLASSES ============
+function Particle() {
+  this.x = 0; this.y = 0;
+  this.vx = 0; this.vy = 0;
+  this.ax = 0; this.ay = 0;
+  this.age = 0;
+  this.life = 2;
+  this.imgIndex = 0;
+  this.scale = 1;
+}
+Particle.prototype.init = function(x, y, vx, vy, imgIndex, scale) {
+  this.x = x; this.y = y;
+  this.vx = vx; this.vy = vy;
+  this.ax = vx * -1.3; this.ay = vy * -1.3;
+  this.age = 0;
+  this.imgIndex = imgIndex;
+  this.scale = scale;
+};
+Particle.prototype.update = function(dt) {
+  this.x += this.vx * dt;
+  this.y += this.vy * dt;
+  this.vx += this.ax * dt;
+  this.vy += this.ay * dt;
+  this.age += dt;
+};
+Particle.prototype.draw = function(ctx) {
+  const ease = (t) => (--t) * t * t + 1;
+  const img = heartImages[this.imgIndex];
+  const size = img.width * ease(this.age / this.life) * this.scale;
+  ctx.globalAlpha = Math.max(0, 1 - this.age / this.life);
+  ctx.drawImage(img, this.x - size/2, this.y - size/2, size, size);
+};
+
+// ============ MAIN PARTICLE HEART ============
+const canvas = document.getElementById('pinkboard');
+const ctx = canvas.getContext('2d');
+const POOL_SIZE = 3000;
+const particles = [];
+for (let i = 0; i < POOL_SIZE; i++) particles.push(new Particle());
+let firstActive = 0, firstFree = 0;
+const DURATION = 2;
+const PARTICLE_RATE = POOL_SIZE / DURATION;
+
+function addParticle(x, y, vx, vy, imgIndex, scale) {
+  particles[firstFree].init(x, y, vx, vy, imgIndex, scale || 1);
+  particles[firstFree].life = DURATION;
+  firstFree++;
+  if (firstFree == POOL_SIZE) firstFree = 0;
+  if (firstActive == firstFree) firstActive++;
+  if (firstActive == POOL_SIZE) firstActive = 0;
+}
+
+function updateParticles(dt) {
+  if (firstActive < firstFree) {
+    for (let i = firstActive; i < firstFree; i++) particles[i].update(dt);
+  }
+  if (firstFree < firstActive) {
+    for (let i = firstActive; i < POOL_SIZE; i++) particles[i].update(dt);
+    for (let i = 0; i < firstFree; i++) particles[i].update(dt);
+  }
+  while (particles[firstActive].age >= particles[firstActive].life && firstActive != firstFree) {
+    firstActive++;
+    if (firstActive == POOL_SIZE) firstActive = 0;
+  }
+}
+
+function drawParticles() {
+  if (firstActive < firstFree) {
+    for (let i = firstActive; i < firstFree; i++) particles[i].draw(ctx);
+  }
+  if (firstFree < firstActive) {
+    for (let i = firstActive; i < POOL_SIZE; i++) particles[i].draw(ctx);
+    for (let i = 0; i < firstFree; i++) particles[i].draw(ctx);
+  }
+}
+
+// ============ WAVE RIPPLES ============
+const waveCanvas = document.getElementById('waveboard');
+const waveCtx = waveCanvas.getContext('2d');
+const waves = [];
+
+class Wave {
+  constructor() {
+    this.radius = 0;
+    this.maxRadius = Math.max(window.innerWidth, window.innerHeight) * 0.7;
+    this.speed = 80;
+    this.alpha = 0.5;
+  }
+  update(dt) {
+    this.radius += this.speed * dt;
+    this.alpha = Math.max(0, 0.5 * (1 - this.radius / this.maxRadius));
+  }
+  draw(ctx) {
+    const cx = waveCanvas.width / 2;
+    const cy = waveCanvas.height / 2;
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.scale(1.6, 1.4);
+    ctx.beginPath();
+    let t = -Math.PI;
+    const r = this.radius / 200;
+    let p = pointOnHeart(t);
+    ctx.moveTo(p.x * r, -p.y * r);
+    while (t < Math.PI) {
+      t += 0.05;
+      p = pointOnHeart(t);
+      ctx.lineTo(p.x * r, -p.y * r);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = `rgba(255, 0, 110, ${this.alpha})`;
+    ctx.lineWidth = 2;
+    ctx.shadowBlur = 20;
+    ctx.shadowColor = '#ff006e';
+    ctx.stroke();
+    ctx.restore();
+  }
+  isDead() { return this.radius >= this.maxRadius; }
+}
+
+setInterval(() => waves.push(new Wave()), 1500);
+
+// ============ ORBITING MINI HEARTS ============
+const orbiters = [];
+for (let i = 0; i < 6; i++) {
+  orbiters.push({
+    angle: (Math.PI * 2 * i) / 6,
+    radius: 220 + i * 15,
+    speed: 0.5 + i * 0.1,
+    yOffset: 0,
+    imgIndex: i % 4,
+    scale: 0.8 + Math.random() * 0.4,
+    pulsePhase: Math.random() * Math.PI * 2
+  });
+}
+
+// ============ MAIN RENDER (2D classic) ============
+let time;
+let pulseTime = 0;
+
+function render() {
+  requestAnimationFrame(render);
+  const newTime = Date.now() / 1000;
+  const dt = Math.min(newTime - (time || newTime), 0.05);
+  time = newTime;
+  pulseTime += dt;
+
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const pulse = 1 + Math.sin(pulseTime * 4) * 0.08;
+  const cx = canvas.width / 2;
+  const cy = canvas.height / 2;
+
+  const amount = PARTICLE_RATE * dt;
+  for (let i = 0; i < amount; i++) {
+    const t = Math.PI - 2 * Math.PI * Math.random();
+    const p = pointOnHeart(t);
+    const dirLen = Math.sqrt(p.x*p.x + p.y*p.y) || 1;
+    const dx = (p.x / dirLen) * 100 * pulse;
+    const dy = (p.y / dirLen) * 100 * pulse;
+    const imgIndex = Math.random() < 0.7 ? 2 : Math.floor(Math.random() * 4);
+    addParticle(cx + p.x * pulse, cy - p.y * pulse, dx, -dy, imgIndex, 1);
+  }
+
+  orbiters.forEach(o => {
+    o.angle += o.speed * dt;
+    const ox = cx + Math.cos(o.angle) * o.radius;
+    const oy = cy + Math.sin(o.angle) * o.radius * 0.6;
+    const orbScale = o.scale * (1 + Math.sin(pulseTime * 3 + o.pulsePhase) * 0.2);
+    addParticle(ox, oy, 0, -10, o.imgIndex, orbScale);
+  });
+
+  updateParticles(dt);
+  drawParticles();
+  ctx.globalAlpha = 1;
+
+  waveCtx.clearRect(0, 0, waveCanvas.width, waveCanvas.height);
+  for (let i = waves.length - 1; i >= 0; i--) {
+    waves[i].update(dt);
+    waves[i].draw(waveCtx);
+    if (waves[i].isDead()) waves.splice(i, 1);
+  }
+}
+
+function onResize() {
+  canvas.width = canvas.clientWidth;
+  canvas.height = canvas.clientHeight;
+  waveCanvas.width = waveCanvas.clientWidth;
+  waveCanvas.height = waveCanvas.clientHeight;
+}
+window.addEventListener('resize', onResize);
+setTimeout(() => { onResize(); render(); }, 50);
+
+// ============ CLICK BURST ============
+document.body.addEventListener('click', (e) => {
+  if (e.target.closest('.music-btn')) return;
+  for (let i = 0; i < 60; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = Math.random() * 200 + 50;
+    addParticle(
+      e.clientX, e.clientY,
+      Math.cos(angle) * speed, Math.sin(angle) * speed,
+      Math.floor(Math.random() * 4),
+      0.5 + Math.random() * 0.8
+    );
+  }
+  const w = new Wave();
+  w.maxRadius = 400;
+  waves.push(w);
+});
+
+// ============ MUSIC ============
+const music = document.getElementById('bgMusic');
+const musicBtn = document.getElementById('musicBtn');
+let isPlaying = false;
+music.volume = 0.6;
+
+const tonearm = document.getElementById('tonearm');
+
+function playMusic() {
+  music.play().then(() => {
+    isPlaying = true;
+    musicBtn.classList.add('playing');
+    tonearm.classList.add('playing');
+  }).catch(() => {});
+}
+function pauseMusic() {
+  music.pause();
+  isPlaying = false;
+  musicBtn.classList.remove('playing');
+  tonearm.classList.remove('playing');
+}
+
+window.addEventListener('load', playMusic);
+function firstClickPlay() {
+  if (!isPlaying) playMusic();
+  document.removeEventListener('click', firstClickPlay);
+}
+document.addEventListener('click', firstClickPlay);
+
+musicBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (isPlaying) pauseMusic();
+  else playMusic();
+});
+</script>
+</body>
+</html>
